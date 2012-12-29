@@ -1,7 +1,12 @@
 from celery import task
-from django.core import management
+from haystack.management.commands import update_index
+#for django management commands
+#from django.core import management
 
 @task()
 def update():
-    management.call_command('update_index')
+    #to call a custom management command:
+    #management.call_command('<custom command>')
+    update_index.Command().handle()
+    
     

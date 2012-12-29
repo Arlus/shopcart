@@ -1,5 +1,6 @@
 from celery import task
-from django.core import management
+#for django management commands
+#from django.core import management
 
 @task()
 def update():
