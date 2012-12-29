@@ -12,12 +12,14 @@ import cart.cart as cart
 from django.core import urlresolvers
 from django import forms
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+#celery task
+from catalog.tasks import update
 # encoding: utf-8
 
 def home(request):
     pros = Product.objects.all()
     paginator = Paginator(pros, 10)
-    page = request.GET.get('page','1')
+    page = request.GET.get('page', '1')
     try:
         products = paginator.page(page)
     except PageNotAnInteger:
@@ -40,12 +42,12 @@ def home(request):
             url = urlresolvers.reverse('show_cart')
             return HttpResponseRedirect(url)
     else:
-        
+
         form = ProductAddToCartForm(request=request, initial={'quantity':1}, label_suffix=':')
         form.fields['quantity'].widget = forms.HiddenInput()
     # set the test cookie on our first GET request
-    request.session.set_test_cookie()    
-    return render_to_response('index.html', ({'products' : products, 'categories':categories}),context_instance=RequestContext(request)
+    request.session.set_test_cookie()
+    return render_to_response('index.html', ({'products' : products, 'categories':categories}), context_instance=RequestContext(request)
 )
 
 def show_category(request, category_slug, template_name="catalog/category.html"):
@@ -69,8 +71,8 @@ def show_category(request, category_slug, template_name="catalog/category.html")
                 return HttpResponseRedirect(url)
     else:
         form = ProductAddToCartForm(request=request, initial={'quantity':1}, label_suffix=':')
-        form.fields['quantity'].widget = forms.HiddenInput()    
-    return render_to_response(template_name, locals(),context_instance=RequestContext(request))
+        form.fields['quantity'].widget = forms.HiddenInput()
+    return render_to_response(template_name, locals(), context_instance=RequestContext(request))
 
 # new product view, with POST vs GET detection
 def show_product(request, product_slug, template_name="catalog/product.html"):
@@ -95,7 +97,7 @@ def show_product(request, product_slug, template_name="catalog/product.html"):
             url = urlresolvers.reverse('show_cart')
             return HttpResponseRedirect(url)
     else:
-        
+
         form = ProductAddToCartForm(request=request, initial={'quantity':1}, label_suffix=':')
         form.fields['quantity'].widget = forms.HiddenInput()
     # assign the hidden input the product slug
@@ -113,15 +115,16 @@ def new_product(request, template_name="catalog/new.html"):
         if request.method == "POST":
             form = productForm(request.POST, request.FILES)
             if form.is_valid():
-                saves = Product(name=request.POST['name'], price=request.POST['price'], old_price=request.POST['old_price'], quantity=request.POST['quantity'], description=request.POST['description'], meta_keywords=request.POST['name'].split(), image=request.FILES['photo'], meta_description="none", created_at=datetime.datetime.now(), updated_at=datetime.datetime.now(), is_bestseller=True, is_active=True, is_featured=True, user = request.user, slug = request.POST['name'].strip().replace(' ', '_').lower())
-            
+                saves = Product(name=request.POST['name'], price=request.POST['price'], old_price=request.POST['old_price'], quantity=request.POST['quantity'], description=request.POST['description'], meta_keywords=request.POST['name'].split(), image=request.FILES['photo'], meta_description="none", created_at=datetime.datetime.now(), updated_at=datetime.datetime.now(), is_bestseller=True, is_active=True, is_featured=True, user=request.user, slug=request.POST['name'].strip().replace(' ', '_').lower())
+
                 saves.save()
                 for c in request.POST.getlist('categories'):
                     saves.categories.add(c)
-                return HttpResponseRedirect('/')            
+                    update()
+                return HttpResponseRedirect('/')
         else:
             form = productForm()
     else:
         return HttpResponseRedirect('/accounts/login/')
-    return render_to_response(template_name, {'form':form, 'categories':categories,}, context_instance=RequestContext(request))
-        
+    return render_to_response(template_name, {'form':form, 'categories':categories, }, context_instance=RequestContext(request))
+

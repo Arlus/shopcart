@@ -64,3 +64,26 @@ body {
 .theme-orman.slider-wrapper {
     margin-top:150px;
 }
+
+#thumbnail {
+	padding: 5px;
+	width: 150px;
+	border: thin solid #999;
+	height: 260px;
+	float: left;
+	margin-right: 10px;
+	margin-bottom: 30px;
+	margin-left: 20px;
+}
+#thumbnail #info {
+	height: 35px;
+	margin-top: 15px;
+	border-top: solid thin #999;
+	text-align: center;
+}
+#thumbnail #pic {
+	height: 150px;
+	width: 150px;
+}
+
+html,body{background-color:#EDEDED;}

@@ -12,16 +12,16 @@ ADMINS = (
 
 BASE_PATH = os.path.abspath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-    
+
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
 MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'cart', # Or path to database file if using sqlite3.
-        'USER': 'cartpassword', # Not used with sqlite3.
+        'USER': 'cart', # Not used with sqlite3.
         'PASSWORD': 'cartpassword', # Not used with sqlite3.
         'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '', # Set to empty string for default. Not used with sqlite3.
@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     'haystack',
     'south',
     'checkout',
+    'djcelery',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -186,10 +187,16 @@ HAYSTACK_SITECONF = 'search_sites'
 HAYSTACK_SEARCH_ENGINE = 'whoosh'
 HAYSTACK_WHOOSH_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'whoosh')
 
-GOOGLE_CHECKOUT_MERCHANT_ID = '609591584931769'
-GOOGLE_CHECKOUT_MERCHANT_KEY = 'AIOxUZTh0izXrVyPvQntFw'
-GOOGLE_CHECKOUT_URL = 'https://sandbox.google.com/checkout/api/v2/merchantCheckout/Merchant/' + GOOGLE_CHECKOUT_MERCHANT_ID
+#GOOGLE_CHECKOUT_MERCHANT_ID = '609591584931769'
+#GOOGLE_CHECKOUT_MERCHANT_KEY = 'AIOxUZTh0izXrVyPvQntFw'
+#GOOGLE_CHECKOUT_URL = 'https://sandbox.google.com/checkout/api/v2/merchantCheckout/Merchant/' + GOOGLE_CHECKOUT_MERCHANT_ID
 
+#Heroku
 # Parse database configuration from $DATABASE_URL
-import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
+#import dj_database_url
+#DATABASES['default'] = dj_database_url.config()
+
+import djcelery
+djcelery.setup_loader()
+
+BROKER_URL = 'amqp://guest:guest@localhost:5672/'
